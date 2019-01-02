@@ -2,8 +2,22 @@ const express = require('express');
 const router = express.Router();
 const Ninja = require('./ninjas');
 //get a list of ninjas from the db
-router.get('/ninjas', function(req, res) {
-    res.send({ type: 'GET' })
+router.get('/ninjas', function(req, res, next) {
+    /*Ninja.find({}).then(function(ninjas){
+        res.send(ninjas); 
+    })
+    */
+    
+    Ninja.geoNear(
+        {type:'Point',coordinates:[parseFloat(req.query.Ing), parseFloat(req.query.lat)]},
+        {maxDistance:100000, sphereical: true}
+        
+    
+    
+    ).then(function(ninjas){
+      res.send(ninjas)  
+    });
+        
 
 })
 
