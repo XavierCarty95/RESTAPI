@@ -2,24 +2,38 @@ const express = require('express');
 const router = express.Router();
 const Ninja = require('./ninjas');
 //get a list of ninjas from the db
-router.get('/ninjas', function(req, res, next) {
-    /*Ninja.find({}).then(function(ninjas){
-        res.send(ninjas); 
-    })
-    */
+// router.get('/ninjas', function(req, res, next) {
+//     Ninja.find({}).then(function(ninjas){
+//         res.send(ninjas); 
+//     })
     
-    Ninja.geoNear(
-        {type:'Point',coordinates:[parseFloat(req.query.Ing), parseFloat(req.query.lat)]},
-        {maxDistance:100000, sphereical: true}
+    router.get('/ninjas', function(req,res,next) {
+    Ninja.aggregate([
+        {
+            $geoNear: {
+                near: 'Point',
+                distanceField: "dist.calculated",
+                maxDistance: 100000,
+                spherical: true                
+            }
+        }
+    ]).then(function(error, res, next){
+        res.send();
+    }).catch(next);
+    
+});﻿
+//     Ninja.geoNear (
+//         {type:'Point',coordinates:[parseFloat(req.query.Ing), parseFloat(req.query.lat)]},
+//         {maxDistance:100000, sphereical: true}
         
     
     
-    ).then(function(ninjas){
-      res.send(ninjas)  
-    });
+//     ).then(function(ninjas){
+//       res.send(ninjas)  
+//     });
         
 
-})
+// })
 
 // add new ninja to database
 router.post('/ninjas', function(req, res, next) {
@@ -44,8 +58,9 @@ router.put('/ninjas/:id', function(req, res, next) {
 router.delete('/ninjas/:id', function(req, res) {
     Ninja.findByIDAndRemove({ _id: req.params.id }).then(function(ninja) {
         res.send(ninja);
+        
     })
-    res.send({ type: 'DELETE' })
+    res.send({ type: 'DELETE' });
 
 });
 
